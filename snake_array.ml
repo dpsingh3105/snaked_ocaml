@@ -87,7 +87,7 @@ let eat_food snake food s q=
     begin inc_snake snake 5;
     let nx = ref snake.hx in
     let ny = ref snake.hy in
-    while (check_point snake (!nx) (!ny) 0) do
+    while not (check_point snake (!nx) (!ny) 0) do
     nx := (((Random.int (size_x()-5))/5)*5 + 5);
     ny := (((Random.int (size_y()-5))/5)*5 + 5); done;
     food.posx <- !nx;
@@ -126,12 +126,11 @@ let snake_alive snake =
 	let a = snake.hx  in
 	let b = snake.hy  in
 	if a < 8 || a > size_x() - 4 || b < 8 || b > size_y() -8 then false
-else if check_point snake a b 2 then true
+else if  check_point snake a b 2 then true
 else false;;
 
 (*game over function*)
 let game_over snake =
-	clear_graph();
 	set_color blue;
 	moveto 480 240;
 	set_font "-misc-dejavu sans mono-bold-r-normal--256-0-0-0-m-0-iso8859-1";
@@ -147,7 +146,6 @@ set_line_width 5;
 
 (*move snake with keyboard interaction*)
 let move_vel snake food q=
-open_graph "";
 	set_color blue;
 	moveto 480 240;
 	set_font "-misc-dejavu sans mono-bold-r-normal--256-0-0-0-m-0-iso8859-1";
@@ -156,9 +154,9 @@ open_graph "";
 	clear_graph ();
 	let temp1 = ref '0' in
 	let s = ref '0' in
-	let temp = ref true in
-              while snake.alive do
-              while key_pressed()= false && !temp do
+
+              while snake_alive snake do
+              while key_pressed()= false && snake_alive snake do
                 let t=Sys.time() in
                 for g = 0 to 4 do
                 while Sys.time () -.t <= !q do
@@ -169,22 +167,34 @@ open_graph "";
               show_food food;
               auto_synchronize false;
               rems snake; done;
-              eat_food snake food !s q;
-              temp := snake_alive snake; done;
-              temp1 := read_key();
+              eat_food snake food !s q; done;
+              for i = 0 to 0 do
+              if snake_alive snake then begin
+              temp1 := read_key(); end
+            else begin (); end done;
               for j= 0 to 0 do
               let s = ref (snake.dir) in
               match !temp1 with
               | x -> if ((x = '2'&& !s != '8') || ( x = '4'&& !s != '6') || (x = '6'&& !s != '4') || (x = '8'&& !s != '2')) then begin snake.dir <- !temp1; end else begin (); end done; done;
-      game_over snake;;
+      print_string("yes");
+      auto_synchronize false;
+
+      close_graph();
+      open_graph "";
+      game_over snake;
+      auto_synchronize true;;
 
 let start() = 
 open_graph "";
-let snake = {len = 5; hx = 20; hy=10; ty=15;tx=10; cur=[|(20,10);(15,10)|]; col = blue; alive = true; dir = '6'} in
+let snake = {len = 5; hx = 20; hy=10; ty=10;tx=10; cur=[|(20,10);(10,10)|]; col = blue; alive = true; dir = '6'} in
 let food = {posx = (((Random.int (size_x()-5))/5)*5 + 5); posy = (((Random.int (size_y()-5))/5)*5 + 5) } in
-move_vel snake food (ref 0.15);;
+move_vel snake food (ref 0.15);
+open_graph "";
+game_over snake;
+auto_synchronize true;
+;;
 
-let snake = {len = 5; hx = 20; hy=10; ty=10;tx=15; cur=[|(20,10);(15,10)|]; col = blue; alive = true; dir = '6'};;
+let snake = {len = 5; hx = 20; hy=10; ty=10;tx=10; cur=[|(20,10);(10,10)|]; col = blue; alive = true; dir = '6'};;
 let test snake = 
 	open_graph "";
 	let food = {posx = (((Random.int (size_x()-5))/5)*5 + 5); posy = (((Random.int (size_y()-5))/5)*5 + 5) } in
